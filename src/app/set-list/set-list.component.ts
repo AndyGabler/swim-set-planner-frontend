@@ -1,27 +1,26 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
-import { SetSelectService } from '../set-select.service';
-import { SwimSet } from '../swimsets';
-import { swimSets } from '../swimsets';
+import { SwimSet, swimSets } from '../swimsets';
 
 @Component({
   selector: 'app-set-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './set-list.component.html',
-  styleUrl: './set-list.component.css',
-  providers: [SetSelectService]
+  styleUrl: './set-list.component.css'
 })
 export class SetListComponent {
-  swimSets = [...swimSets];
-  get selectedSet(): SwimSet|null {
-    return this.dataService.selectedSwimSet;
-  }
-  set selectedSet(value: SwimSet|null) {
-    this.dataService.selectedSwimSet = value;
+  constructor(
+    private router: Router
+  ) {
+
   }
 
-  constructor(public dataService: SetSelectService) { }
+  swimSets = [...swimSets];
+
+  clickSet(swimSet: SwimSet) {
+    this.router.navigate(['/setdetail'], { state: { selectedSet: swimSet } });
+  }
 }

@@ -1,23 +1,23 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SetSelectService } from '../set-select.service';
 import { SwimSet } from '../swimsets';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-set-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './set-details.component.html',
-  styleUrl: './set-details.component.css',
-  providers: [SetSelectService]
+  styleUrl: './set-details.component.css'
 })
 export class SetDetailsComponent {
-  get selectedSet(): SwimSet|null {
-    return this.dataService.selectedSwimSet;
+  selectedSet: SwimSet|null = null;
+  constructor(private router: Router) {
+    const navigationState = router.getCurrentNavigation()?.extras?.state
+    if (navigationState != null) {
+      // Technically, this can still produce an error, but only if end-user is really trying
+      this.selectedSet = navigationState["selectedSet"]
+    }
   }
-  set selectedSet(value: SwimSet|null) {
-    this.dataService.selectedSwimSet = value;
-  }
-
-  constructor(public dataService: SetSelectService) { }
+  
 }
