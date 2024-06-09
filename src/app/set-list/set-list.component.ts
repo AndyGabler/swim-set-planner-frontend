@@ -25,7 +25,7 @@ export class SetListComponent {
 
   getSets(): SwimSet[] {
     let apiSets: SwimSet[] = [];
-    this.client.get<SwimSet[]>("http://localhost:8080/swimsets").forEach(
+    this.client.get<SwimSet[]>("/swimsets").forEach(
       setList => setList.forEach(set => apiSets.push(set))
     );
     return apiSets
