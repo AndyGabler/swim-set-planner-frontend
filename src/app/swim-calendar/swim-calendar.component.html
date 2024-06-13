@@ -1,1 +1,13 @@
-<p>swim-calendar works!</p>
+<h1>Workout Schedule</h1>
+<!-- This will be removed -->
+<h3 [ngModel]="lookupDate" name="lookupDate" ngDefaultControl [textContent]="lookupDate"></h3>
+<label for="start">Sets Performed on Date:</label>
+<!-- 
+    Ya probably got work to do on this but I like this calendar thing. 
+    Research how to make it more Angular 
+-->
+<input [(value)]="lookupDate" type="date" (input)="dateInput($event)" />
+
+<!-- TODO Display sets performed -->
+<!-- TODO display total yards -->
+<!-- TODO display areas worked -->
