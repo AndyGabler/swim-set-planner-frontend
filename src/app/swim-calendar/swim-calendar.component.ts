@@ -1,52 +1,49 @@
-import { ActivatedRoute } from '@angular/router';
-import { Component, OnInit, DoCheck, SimpleChanges, OnChanges, Input } from '@angular/core';
+
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { formatDate } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 import { SwimSet } from '../swimsets';
+import { ScheduledSet } from '../scheduledset';
 
 @Component({
   selector: 'app-swim-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './swim-calendar.component.html',
   styleUrl: './swim-calendar.component.css'
 })
-export class SwimCalendarComponent implements OnInit, OnChanges {
+export class SwimCalendarComponent {
   constructor(
-    private router: Router,
-    private client: HttpClient,
-    private route: ActivatedRoute
+    private client: HttpClient
   ) {
-    this.lookupDate = this.route.snapshot.queryParamMap.get('date');
-    if (this.lookupDate == null) {
-      this.setDate(new Date())
+    this.performLookupWithDate(this.lookupDate.value)
+  }
+
+  lookupDate = new FormControl(formatDate(new Date(), 'yyyy-MM-dd', 'en'));
+  totalYards = new FormControl(0)
+
+  changeDate(event: any) {
+    let newDate = event.target.value
+    this.performLookupWithDate(newDate)
+  }
+
+  performLookupWithDate(date: string|null) {
+    console.log(date)
+    if (date == null) {
+      return
     }
-  }
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log("changes detected")
-    console.log(changes)
-  }
-
-  @Input() lookupDate: string|null = null;
-
-  ngOnInit() {
-    // TODO service call
-  }
-
-  dateInput(event: any) {
-    this.setDate(event.target.value)
-  }
-
-  setDate(aDate: Date) {
-    console.log(aDate)
-    this.lookupDate = formatDate(new Date(), 'yyyy-MM-dd', 'en');
-  }
-
-  clickSet(swimSet: SwimSet) {
-    this.router.navigate(['/setdetail'], { state: { selectedSet: swimSet } });
+    
+    let httpParams = new HttpParams().set("scheduledDate", date)
+    let yardCounter = 0;
+    this.client.get<ScheduledSet[]>("/setschedule", {params: httpParams}).subscribe((results: ScheduledSet[]) => {
+      results.forEach(set => {
+        console.log(set)
+        yardCounter += (set.scheduledSet.repCount * set.scheduledSet.repLength)
+      })
+      this.totalYards.setValue(yardCounter)
+    })
   }
 }

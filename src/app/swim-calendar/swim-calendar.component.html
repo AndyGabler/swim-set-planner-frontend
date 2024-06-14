@@ -1,13 +1,9 @@
 <h1>Workout Schedule</h1>
-<!-- This will be removed -->
-<h3 [ngModel]="lookupDate" name="lookupDate" ngDefaultControl [textContent]="lookupDate"></h3>
 <label for="start">Sets Performed on Date:</label>
-<!-- 
-    Ya probably got work to do on this but I like this calendar thing. 
-    Research how to make it more Angular 
--->
-<input [(value)]="lookupDate" type="date" (input)="dateInput($event)" />
+<input id="lookupDate" type="date" [formControl]="lookupDate" (input)="changeDate($event)">
 
+<h3>Summary for {{ lookupDate.value }}</h3>
+<p>Total Yards: {{ totalYards.value }}</p>
 <!-- TODO Display sets performed -->
 <!-- TODO display total yards -->
 <!-- TODO display areas worked -->
