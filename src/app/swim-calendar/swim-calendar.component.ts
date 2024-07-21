@@ -40,7 +40,7 @@ export class SwimCalendarComponent {
       return
     }
     
-    let httpParams = new HttpParams().set("scheduledDate", date)
+    let httpParams = new HttpParams().set("dateScheduled", date)
     let yardCounter = 0;
     let labels = new Set<string>()
     this.client.get<ScheduledSet[]>("/setschedule", {params: httpParams}).subscribe((results: ScheduledSet[]) => {
