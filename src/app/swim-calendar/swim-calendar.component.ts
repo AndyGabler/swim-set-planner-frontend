@@ -4,9 +4,11 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { formatDate } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { SwimSet } from '../swimsets';
 import { ScheduledSet } from '../scheduledset';
+import { NewWorkoutDialogComponent } from '../new-workout-dialog/new-workout-dialog.component';
 
 @Component({
   selector: 'app-swim-calendar',
@@ -18,11 +20,12 @@ import { ScheduledSet } from '../scheduledset';
 export class SwimCalendarComponent {
   constructor(
     private client: HttpClient,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.performLookupWithDate(this.lookupDate?.value)
   }
-
 
   lookupDate = new FormControl(formatDate(new Date(), 'yyyy-MM-dd', 'en'))
   totalYards = new FormControl(0)
@@ -30,8 +33,53 @@ export class SwimCalendarComponent {
   areasWorked = new FormControl('')
 
   changeDate(event: any) {
+    this.snackBar.dismiss();
     let newDate = event.target.value
     this.performLookupWithDate(newDate)
+  }
+
+  addSetPopup() {
+    this.snackBar.dismiss()
+    let date = formatDate(this.lookupDate.value!!, 'yyyy-MM-dd', 'en')
+    const dialogRef = this.dialog.open(NewWorkoutDialogComponent, {
+      data: date,
+      height: '200px',
+      width: '390px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result == null || result == "") {
+        console.log("returned")
+        return
+      }
+      
+      let setId = result
+      let setOrder = this.setsPerformed.length + 1
+      let workoutId = -1
+      this.client.get<any>("/setschedule/maxId").subscribe(result => {
+        workoutId = result["maxId"] + 1
+
+        let newWorkout = {
+          "id": workoutId,
+          "dateScheduled": date,
+          "order": setOrder,
+          "scheduledSetId": setId
+        }
+  
+        console.log("new workout details", newWorkout)
+        this.client.post("/setschedule", newWorkout, { observe: 'response'}).subscribe(result => {
+          console.log("post results", result)
+          this.performLookupWithDate(date)
+
+          if (result.status == 200) {
+            // TODO technically need to ensure this is a JSON of what we want
+            this.snackBar.open('Set added successfully.', 'Dismiss', {duration: 2000})
+          } else {
+            this.snackBar.open('Error adding set.', 'Dismiss', {duration: 2000})
+          }
+        })
+      })
+    })
   }
 
   performLookupWithDate(date: string|null|undefined) {

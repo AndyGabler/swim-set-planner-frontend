@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 
 import { SwimSet } from '../swimsets';
 import { Observable } from 'rxjs';
+import { SwimSetService } from '../swim-set-service.service';
 
 @Component({
   selector: 'app-set-list',
@@ -16,20 +16,12 @@ import { Observable } from 'rxjs';
 export class SetListComponent {
   constructor(
     private router: Router,
-    public client: HttpClient
+    private service: SwimSetService
   ) {
-    this.swimSets = this.getSets()
+    this.swimSets = this.service.getSets()
   }
   
-  swimSets: SwimSet[] = this.getSets()
-
-  getSets(): SwimSet[] {
-    let apiSets: SwimSet[] = [];
-    this.client.get<SwimSet[]>("/swimsets").forEach(
-      setList => setList.forEach(set => apiSets.push(set))
-    );
-    return apiSets
-  }
+  swimSets: SwimSet[] = this.service.getSets()
 
   clickSet(swimSet: SwimSet) {
     this.router.navigate(['/setdetail'], { state: { selectedSet: swimSet } });
